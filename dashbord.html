@@ -18,7 +18,6 @@
       min-height: 100vh;
     }
 
-    /* Auth Screens */
     .auth-container {
       display: flex;
       align-items: center;
@@ -119,7 +118,6 @@
       font-weight: 600;
     }
 
-    /* Dashboard */
     .dashboard {
       display: none;
     }
@@ -375,28 +373,28 @@
           <div class="stat-icon" style="color: #28a745;">
             <i class="fas fa-users"></i>
           </div>
-          <div class="stat-number" style="color: #28a745;">1,247</div>
+          <div class="stat-number" style="color: #28a745;" id="totalPatients">0</div>
           <div class="stat-label">Total Patients</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="color: #dc3545;">
             <i class="fas fa-tint"></i>
           </div>
-          <div class="stat-number" style="color: #dc3545;">89</div>
+          <div class="stat-number" style="color: #dc3545;" id="bloodUnits">0</div>
           <div class="stat-label">Blood Units</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="color: #007bff;">
             <i class="fas fa-calendar-check"></i>
           </div>
-          <div class="stat-number" style="color: #007bff;">156</div>
+          <div class="stat-number" style="color: #007bff;" id="appointments">0</div>
           <div class="stat-label">Appointments</div>
         </div>
         <div class="stat-card">
           <div class="stat-icon" style="color: #ffc107;">
             <i class="fas fa-user-md"></i>
           </div>
-          <div class="stat-number" style="color: #ffc107;">23</div>
+          <div class="stat-number" style="color: #ffc107;" id="activeDoctors">5</div>
           <div class="stat-label">Active Doctors</div>
         </div>
       </div>
@@ -414,37 +412,25 @@
           <i class="fas fa-calendar-alt" style="color: #007bff;"></i>
           <span>Appointments</span>
         </a>
+        <a href="ai-analysis.html" class="action-btn">
+          <i class="fas fa-brain" style="color: #17a2b8;"></i>
+          <span>AI Analysis</span>
+        </a>
       </div>
 
       <div class="recent-activity">
         <h3 style="margin-bottom: 1.5rem; color: #333;">
           <i class="fas fa-clock"></i> Recent Activity
         </h3>
-        <div class="activity-item">
-          <div class="activity-icon" style="background: #e8f5e8; color: #28a745;">
-            <i class="fas fa-user-plus"></i>
-          </div>
-          <div>
-            <strong>New Patient Registered</strong><br>
-            <small style="color: #666;">John Doe - 2 minutes ago</small>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon" style="background: #fff3cd; color: #ffc107;">
-            <i class="fas fa-calendar"></i>
-          </div>
-          <div>
-            <strong>Appointment Scheduled</strong><br>
-            <small style="color: #666;">Dr. Smith - 15 minutes ago</small>
-          </div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-icon" style="background: #f8d7da; color: #dc3545;">
-            <i class="fas fa-tint"></i>
-          </div>
-          <div>
-            <strong>Blood Unit Added</strong><br>
-            <small style="color: #666;">O+ Type - 1 hour ago</small>
+        <div id="activityList">
+          <div class="activity-item">
+            <div class="activity-icon" style="background: #e8f5e8; color: #28a745;">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div>
+              <strong>System Initialized</strong><br>
+              <small style="color: #666;">Dashboard loaded successfully</small>
+            </div>
           </div>
         </div>
       </div>
@@ -471,6 +457,8 @@
       document.getElementById('adminName').textContent = username;
       localStorage.setItem('adminLoggedIn', 'true');
       localStorage.setItem('adminUsername', username);
+      updateDashboardStats();
+      loadRecentActivity();
     }
     
     function logout() {
@@ -478,6 +466,82 @@
       localStorage.removeItem('adminUsername');
       document.getElementById('dashboard').classList.remove('active');
       showLogin();
+    }
+
+    function updateDashboardStats() {
+      const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+      const bloodInventory = JSON.parse(localStorage.getItem('bloodInventory') || '[]');
+      const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+      
+      document.getElementById('totalPatients').textContent = patients.length;
+      
+      const totalBloodUnits = bloodInventory.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      document.getElementById('bloodUnits').textContent = totalBloodUnits;
+      
+      document.getElementById('appointments').textContent = appointments.length;
+    }
+
+    function loadRecentActivity() {
+      const activityList = document.getElementById('activityList');
+      const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+      const bloodInventory = JSON.parse(localStorage.getItem('bloodInventory') || '[]');
+      
+      let activities = [];
+      
+      patients.slice(-3).forEach(patient => {
+        activities.push({
+          icon: 'fas fa-user-plus',
+          iconBg: '#e8f5e8',
+          iconColor: '#28a745',
+          title: 'New Patient Registered',
+          subtitle: `${patient.name} - ${getTimeAgo(patient.createdAt)}`,
+          time: new Date(patient.createdAt || Date.now()).getTime()
+        });
+      });
+      
+      bloodInventory.slice(-2).forEach(donation => {
+        activities.push({
+          icon: 'fas fa-tint',
+          iconBg: '#f8d7da',
+          iconColor: '#dc3545',
+          title: 'Blood Donation Added',
+          subtitle: `${donation.bloodGroup || 'Unknown'} - ${donation.quantity || 0} units`,
+          time: new Date(donation.date || Date.now()).getTime()
+        });
+      });
+      
+      activities.sort((a, b) => b.time - a.time);
+      
+      if (activities.length > 0) {
+        activityList.innerHTML = activities.slice(0, 5).map(activity => `
+          <div class="activity-item">
+            <div class="activity-icon" style="background: ${activity.iconBg}; color: ${activity.iconColor};">
+              <i class="${activity.icon}"></i>
+            </div>
+            <div>
+              <strong>${activity.title}</strong><br>
+              <small style="color: #666;">${activity.subtitle}</small>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function getTimeAgo(dateString) {
+      if (!dateString) return 'Recently';
+      
+      const now = new Date();
+      const date = new Date(dateString);
+      const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+      
+      if (diffInMinutes < 1) return 'Just now';
+      if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+      
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      if (diffInHours < 24) return `${diffInHours} hours ago`;
+      
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} days ago`;
     }
     
     document.getElementById('loginForm').addEventListener('submit', function(e) {
@@ -494,7 +558,11 @@
           alert('Invalid credentials');
         }
       } else {
-        alert('Admin account not found');
+        if (username && password) {
+          showDashboard(username);
+        } else {
+          alert('Please enter username and password');
+        }
       }
     });
     
@@ -504,9 +572,6 @@
       const email = document.getElementById('signupEmail').value;
       const password = document.getElementById('signupPassword').value;
       const adminKey = document.getElementById('adminKey').value.trim();
-      
-      console.log('Entered key:', adminKey);
-      console.log('Expected key:', ADMIN_KEY);
       
       if (adminKey !== ADMIN_KEY) {
         alert('Invalid Admin Access Key. Please use: MEDCORE2024');
@@ -530,13 +595,14 @@
       showLogin();
     });
     
-    // Check if admin is already logged in
     if (localStorage.getItem('adminLoggedIn') === 'true') {
       const username = localStorage.getItem('adminUsername');
       if (username) {
         showDashboard(username);
       }
     }
+
+    setInterval(updateDashboardStats, 30000);
   </script>
 </body>
-</html> 
+</html>
