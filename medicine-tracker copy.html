@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medicine Tracker - MediCore</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      color: #667eea;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+    }
+
+    .medicine-form {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .medicines-section {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .medicine-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border-left: 4px solid #667eea;
+    }
+
+    .medicine-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .medicine-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .medicine-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .medicine-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-due {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-overdue {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .medicine-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #666;
+    }
+
+    .detail-item i {
+      color: #667eea;
+      width: 16px;
+    }
+
+    .schedule-info {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+    }
+
+    .next-dose {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .medicine-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .dosage-tracker {
+      background: #e3f2fd;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .dosage-history {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .dose-taken {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #28a745;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.7rem;
+    }
+
+    .dose-missed {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #dc3545;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.7rem;
+    }
+
+    .dose-pending {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffc107;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.7rem;
+    }
+
+    .reminders-panel {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-top: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .reminder-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid #ffc107;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .medicine-details {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-pills"></i> Medicine Tracker</h1>
+      <p>Track prescriptions, dosages, and medication schedules</p>
+    </div>
+
+    <div class="main-content">
+      <div class="medicine-form">
+        <h2><i class="fas fa-plus-circle"></i> Add Medicine</h2>
+        
+        <form id="medicineForm">
+          <input type="hidden" id="medicineId" name="id">
+          
+          <div class="form-group">
+            <label for="patientSelect">Patient *</label>
+            <select id="patientSelect" name="patient" required>
+              <option value="">Select Patient</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="medicineName">Medicine Name *</label>
+            <input type="text" id="medicineName" name="name" required placeholder="e.g., Aspirin, Metformin">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dosage">Dosage *</label>
+              <input type="text" id="dosage" name="dosage" required placeholder="e.g., 500mg, 2 tablets">
+            </div>
+            <div class="form-group">
+              <label for="frequency">Frequency *</label>
+              <select id="frequency" name="frequency" required>
+                <option value="">Select Frequency</option>
+                <option value="once-daily">Once Daily</option>
+                <option value="twice-daily">Twice Daily</option>
+                <option value="three-times-daily">Three Times Daily</option>
+                <option value="four-times-daily">Four Times Daily</option>
+                <option value="as-needed">As Needed</option>
+                <option value="weekly">Weekly</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="startDate">Start Date *</label>
+              <input type="date" id="startDate" name="startDate" required>
+            </div>
+            <div class="form-group">
+              <label for="endDate">End Date</label>
+              <input type="date" id="endDate" name="endDate">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="medicineType">Medicine Type</label>
+            <select id="medicineType" name="type">
+              <option value="">Select Type</option>
+              <option value="tablet">Tablet</option>
+              <option value="capsule">Capsule</option>
+              <option value="liquid">Liquid</option>
+              <option value="injection">Injection</option>
+              <option value="inhaler">Inhaler</option>
+              <option value="cream">Cream/Ointment</option>
+              <option value="drops">Drops</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="instructions">Instructions</label>
+            <textarea id="instructions" name="instructions" rows="3" placeholder="Take with food, before meals, etc."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="sideEffects">Possible Side Effects</label>
+            <textarea id="sideEffects" name="sideEffects" rows="2" placeholder="List any known side effects..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="prescribedBy">Prescribed By</label>
+            <input type="text" id="prescribedBy" name="prescribedBy" placeholder="Doctor's name">
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Add Medicine
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="resetForm()">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </form>
+      </div>
+
+      <div class="medicines-section">
+        <h2><i class="fas fa-list"></i> Active Medications</h2>
+        <div id="medicinesList"></div>
+      </div>
+    </div>
+
+    <div class="reminders-panel">
+      <h2><i class="fas fa-bell"></i> Today's Reminders</h2>
+      <div id="remindersList"></div>
+    </div>
+  </div>
+
+  <script>
+    let editingMedicineId = null;
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPatients();
+      loadMedicines();
+      loadReminders();
+      setMinDate();
+    });
+
+    function loadPatients() {
+      const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+      const select = document.getElementById('patientSelect');
+      
+      select.innerHTML = '<option value="">Select Patient</option>';
+      patients.forEach(patient => {
+        const option = document.createElement('option');
+        option.value = patient.id || patient.name;
+        option.textContent = `${patient.name} (Age: ${patient.age})`;
+        select.appendChild(option);
+      });
+    }
+
+    function setMinDate() {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('startDate').value = today;
+      document.getElementById('startDate').min = today;
+      document.getElementById('endDate').min = today;
+    }
+
+    // Form submission
+    document.getElementById('medicineForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const medicine = {
+        id: editingMedicineId || Date.now(),
+        patientId: formData.get('patient'),
+        name: formData.get('name'),
+        dosage: formData.get('dosage'),
+        frequency: formData.get('frequency'),
+        startDate: formData.get('startDate'),
+        endDate: formData.get('endDate'),
+        type: formData.get('type'),
+        instructions: formData.get('instructions'),
+        sideEffects: formData.get('sideEffects'),
+        prescribedBy: formData.get('prescribedBy'),
+        status: 'active',
+        dosageHistory: [],
+        createdAt: editingMedicineId ? undefined : new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Remove undefined values
+      Object.keys(medicine).forEach(key => {
+        if (medicine[key] === undefined) delete medicine[key];
+      });
+
+      // Save medicine
+      let medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+      
+      if (editingMedicineId) {
+        const index = medicines.findIndex(m => m.id === editingMedicineId);
+        if (index !== -1) {
+          medicines[index] = { ...medicines[index], ...medicine };
+        }
+      } else {
+        medicines.push(medicine);
+      }
+      
+      localStorage.setItem('medicines', JSON.stringify(medicines));
+      
+      // Reset form and reload
+      resetForm();
+      loadMedicines();
+      loadReminders();
+      
+      alert(editingMedicineId ? 'Medicine updated successfully!' : 'Medicine added successfully!');
+    });
+
+    function loadMedicines() {
+      const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+      const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+      const container = document.getElementById('medicinesList');
+      
+      if (medicines.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No medicines tracked yet</p>';
+        return;
+      }
+      
+      // Filter active medicines
+      const activeMedicines = medicines.filter(m => m.status === 'active');
+      
+      container.innerHTML = activeMedicines.map(medicine => {
+        const patient = patients.find(p => p.id == medicine.patientId);
+        return createMedicineCard(medicine, patient);
+      }).join('');
+    }
+
+    function createMedicineCard(medicine, patient) {
+      const status = getMedicineStatus(medicine);
+      const nextDose = getNextDoseTime(medicine);
+      
+      return `
+        <div class="medicine-card">
+          <div class="medicine-header">
+            <div class="medicine-name">${medicine.name}</div>
+            <div class="medicine-status status-${status.level}">
+              ${status.label}
+            </div>
+          </div>
+          
+          <div class="medicine-details">
+            <div class="detail-item">
+              <i class="fas fa-user"></i>
+              <span>${patient ? patient.name : 'Unknown Patient'}</span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-pills"></i>
+              <span>${medicine.dosage}</span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-clock"></i>
+              <span>${getFrequencyText(medicine.frequency)}</span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-calendar"></i>
+              <span>${new Date(medicine.startDate).toLocaleDateString()}</span>
+            </div>
+          </div>
+          
+          ${medicine.instructions ? `
+            <div class="detail-item" style="margin-top: 0.5rem;">
+              <i class="fas fa-info-circle"></i>
+              <span><strong>Instructions:</strong> ${medicine.instructions}</span>
+            </div>
+          ` : ''}
+          
+          <div class="schedule-info">
+            <div class="next-dose">Next Dose: ${nextDose}</div>
+            <div class="dosage-tracker">
+              <strong>This Week:</strong>
+              <div class="dosage-history" id="history-${medicine.id}">
+                ${generateDosageHistory(medicine)}
+              </div>
+            </div>
+          </div>
+          
+          <div class="medicine-actions">
+            <button class="btn btn-primary btn-small" onclick="takeDose(${medicine.id})">
+              <i class="fas fa-check"></i> Take Dose
+            </button>
+            <button class="btn btn-secondary btn-small" onclick="editMedicine(${medicine.id})">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="btn btn-secondary btn-small" onclick="viewHistory(${medicine.id})">
+              <i class="fas fa-history"></i> History
+            </button>
+            <button class="btn btn-secondary btn-small" onclick="stopMedicine(${medicine.id})">
+              <i class="fas fa-stop"></i> Stop
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function getMedicineStatus(medicine) {
+      const now = new Date();
+      const nextDose = getNextDoseDateTime(medicine);
+      
+      if (!nextDose) {
+        return { level: 'active', label: 'Active' };
+      }
+      
+      const timeDiff = nextDose - now;
+      const hoursDiff = timeDiff / (1000 * 60 * 60);
+      
+      if (hoursDiff < 0) {
+        return { level: 'overdue', label: 'Overdue' };
+      } else if (hoursDiff < 2) {
+        return { level: 'due', label: 'Due Soon' };
+      } else {
+        return { level: 'active', label: 'Active' };
+      }
+    }
+
+    function getNextDoseTime(medicine) {
+      const nextDose = getNextDoseDateTime(medicine);
+      if (!nextDose) return 'As needed';
+      
+      const now = new Date();
+      const timeDiff = nextDose - now;
+      
+      if (timeDiff < 0) {
+        return 'Overdue';
+      } else if (timeDiff < 24 * 60 * 60 * 1000) {
+        return nextDose.toLocaleTimeString();
+      } else {
+        return nextDose.toLocaleDateString() + ' ' + nextDose.toLocaleTimeString();
+      }
+    }
+
+    function getNextDoseDateTime(medicine) {
+      if (medicine.frequency === 'as-needed') return null;
+      
+      const now = new Date();
+      const startDate = new Date(medicine.startDate);
+      
+      // Simple calculation - in real app, this would be more sophisticated
+      const frequencyHours = {
+        'once-daily': 24,
+        'twice-daily': 12,
+        'three-times-daily': 8,
+        'four-times-daily': 6,
+        'weekly': 168
+      };
+      
+      const hours = frequencyHours[medicine.frequency] || 24;
+      const nextDose = new Date(now);
+      nextDose.setHours(nextDose.getHours() + hours);
+      
+      return nextDose;
+    }
+
+    function getFrequencyText(frequency) {
+      const texts = {
+        'once-daily': 'Once Daily',
+        'twice-daily': 'Twice Daily',
+        'three-times-daily': '3 Times Daily',
+        'four-times-daily': '4 Times Daily',
+        'as-needed': 'As Needed',
+        'weekly': 'Weekly',
+        'custom': 'Custom'
+      };
+      return texts[frequency] || frequency;
+    }
+
+    function generateDosageHistory(medicine) {
+      // Generate last 7 days of dosage history
+      const history = [];
+      const today = new Date();
+      
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        
+        // Simulate dosage history (in real app, this would come from stored data)
+        const taken = Math.random() > 0.2; // 80% compliance rate
+        const status = taken ? 'taken' : 'missed';
+        
+        history.push(`<div class="dose-${status}" title="${date.toDateString()}">
+          ${taken ? '✓' : '✗'}
+        </div>`);
+      }
+      
+      return history.join('');
+    }
+
+    function takeDose(id) {
+      const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+      const medicine = medicines.find(m => m.id === id);
+      
+      if (!medicine) return;
+      
+      // Record dose taken
+      if (!medicine.dosageHistory) medicine.dosageHistory = [];
+      medicine.dosageHistory.push({
+        date: new Date().toISOString(),
+        status: 'taken',
+        notes: ''
+      });
+      
+      localStorage.setItem('medicines', JSON.stringify(medicines));
+      loadMedicines();
+      loadReminders();
+      
+      alert('Dose recorded successfully!');
+    }
+
+    function editMedicine(id) {
+      const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+      const medicine = medicines.find(m => m.id === id);
+      
+      if (!medicine) return;
+      
+      editingMedicineId = id;
+      
+      // Populate form
+      document.getElementById('patientSelect').value = medicine.patientId;
+      document.getElementById('medicineName').value = medicine.name;
+      document.getElementById('dosage').value = medicine.dosage;
+      document.getElementById('frequency').value = medicine.frequency;
+      document.getElementById('startDate').value = medicine.startDate;
+      document.getElementById('endDate').value = medicine.endDate || '';
+      document.getElementById('medicineType').value = medicine.type || '';
+      document.getElementById('instructions').value = medicine.instructions || '';
+      document.getElementById('sideEffects').value = medicine.sideEffects || '';
+      document.getElementById('prescribedBy').value = medicine.prescribedBy || '';
+      
+      // Scroll to form
+      document.querySelector('.medicine-form').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function stopMedicine(id) {
+      if (confirm('Are you sure you want to stop this medicine?')) {
+        const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+        const medicine = medicines.find(m => m.id === id);
+        
+        if (medicine) {
+          medicine.status = 'stopped';
+          medicine.endDate = new Date().toISOString().split('T')[0];
+          localStorage.setItem('medicines', JSON.stringify(medicines));
+          loadMedicines();
+          loadReminders();
+        }
+      }
+    }
+
+    function viewHistory(id) {
+      const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+      const medicine = medicines.find(m => m.id === id);
+      
+      if (!medicine) return;
+      
+      const history = medicine.dosageHistory || [];
+      const historyText = history.length > 0 
+        ? history.map(h => `${new Date(h.date).toLocaleDateString()}: ${h.status}`).join('\n')
+        : 'No history available';
+      
+      alert(`Dosage History for ${medicine.name}:\n\n${historyText}`);
+    }
+
+    function loadReminders() {
+      const medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+      const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+      const container = document.getElementById('remindersList');
+      
+      const activeMedicines = medicines.filter(m => m.status === 'active');
+      const dueReminders = activeMedicines.filter(m => {
+        const status = getMedicineStatus(m);
+        return status.level === 'due' || status.level === 'overdue';
+      });
+      
+      if (dueReminders.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">No reminders for today</p>';
+        return;
+      }
+      
+      container.innerHTML = dueReminders.map(medicine => {
+        const patient = patients.find(p => p.id == medicine.patientId);
+        const status = getMedicineStatus(medicine);
+        
+        return `
+          <div class="reminder-item">
+            <div>
+              <strong>${medicine.name}</strong> - ${medicine.dosage}<br>
+              <small>${patient ? patient.name : 'Unknown Patient'} • ${status.label}</small>
+            </div>
+            <button class="btn btn-primary btn-small" onclick="takeDose(${medicine.id})">
+              <i class="fas fa-check"></i> Take Now
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function resetForm() {
+      document.getElementById('medicineForm').reset();
+      editingMedicineId = null;
+      setMinDate();
+    }
+
+    // Auto-refresh reminders every minute
+    setInterval(loadReminders, 60000);
+  </script>
+</body>
+</html>

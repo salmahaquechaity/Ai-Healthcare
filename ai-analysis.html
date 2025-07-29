@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MediCore - AI Medical Analysis</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    .nav-brand i {
+      font-size: 2rem;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .search-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .card-header h2 {
+      font-size: 1.5rem;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .card-header i {
+      font-size: 1.5rem;
+      color: #667eea;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.9rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 1rem 1rem 1rem 3rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .form-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #667eea;
+      font-size: 1.2rem;
+    }
+
+    .search-btn {
+      width: 100%;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .upload-btn {
+      background: linear-gradient(45deg, #10b981, #059669);
+    }
+
+    .upload-btn:hover {
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .file-upload-area {
+      border: 2px dashed #e2e8f0;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .file-upload-area:hover {
+      border-color: #667eea;
+      background: #f8fafc;
+    }
+
+    .file-upload-area i {
+      font-size: 3rem;
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+
+    .file-upload-area p {
+      color: #64748b;
+      margin-bottom: 0.5rem;
+    }
+
+    .alert {
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: #065f46;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .alert-error {
+      background: rgba(239, 68, 68, 0.1);
+      color: #991b1b;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 3rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(102, 126, 234, 0.2);
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .analysis-result {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 3rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: none;
+    }
+
+    .analysis-result.active {
+      display: block;
+    }
+
+    .analysis-result h3 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .patient-info {
+      background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+    .patient-info h4 {
+      color: #333;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .patient-detail {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .patient-detail strong {
+      color: #374151;
+    }
+
+    .risk-level {
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .risk-low {
+      background: linear-gradient(135deg, #d4edda 0%, #f0fff0 100%);
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .risk-medium {
+      background: linear-gradient(135deg, #fff3cd 0%, #fffbf0 100%);
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+
+    .risk-high {
+      background: linear-gradient(135deg, #f8d7da 0%, #fff0f0 100%);
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .risk-level h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .risk-level p {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .recommendations, .insights {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #667eea;
+    }
+
+    .recommendations h4, .insights h4 {
+      color: #333;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .recommendations ul, .insights ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .recommendations li, .insights li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .recommendations li:last-child, .insights li:last-child {
+      border-bottom: none;
+    }
+
+    .recommendations li::before {
+      content: '✓';
+      color: #10b981;
+      font-weight: bold;
+    }
+
+    .insights li::before {
+      content: '•';
+      color: #667eea;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .search-card, .analysis-result {
+        padding: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="dashbord.html" class="nav-brand">
+      <i class="fas fa-heartbeat"></i>
+      MediCore
+    </a>
+  </nav>
+
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-brain"></i> AI Medical Analysis</h1>
+      <p>Advanced patient health assessment powered by artificial intelligence</p>
+    </div>
+
+    <div class="alert alert-success" id="successAlert">
+      <i class="fas fa-check-circle"></i>
+      <span id="successMessage"></span>
+    </div>
+    <div class="alert alert-error" id="errorAlert">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span id="errorMessage"></span>
+    </div>
+
+    <div class="main-content">
+      <div class="search-card">
+        <div class="card-header">
+          <i class="fas fa-search"></i>
+          <h2>Patient Search & Analysis</h2>
+        </div>
+        
+        <form id="searchForm">
+          <div class="form-group">
+            <label class="form-label" for="searchName">Patient Name</label>
+            <div style="position: relative;">
+              <i class="fas fa-user form-icon"></i>
+              <input type="text" id="searchName" class="form-input" placeholder="Enter Patient Full Name" required />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="searchPhone">Phone Number</label>
+            <div style="position: relative;">
+              <i class="fas fa-phone form-icon"></i>
+              <input type="tel" id="searchPhone" class="form-input" placeholder="Enter Phone Number" required />
+            </div>
+          </div>
+          
+          <button type="submit" class="search-btn">
+            <i class="fas fa-search"></i>
+            Search & Analyze Patient
+          </button>
+        </form>
+
+        <div style="margin: 2rem 0; text-align: center; color: #64748b; font-weight: 500;">
+          OR
+        </div>
+
+        <div class="file-upload-area" onclick="document.getElementById('uploadInput').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Upload Medical Report for Analysis</p>
+          <small>Supports: PNG, JPG, PDF, TXT files</small>
+        </div>
+        
+        <button type="button" class="search-btn upload-btn" onclick="document.getElementById('uploadInput').click()">
+          <i class="fas fa-file-upload"></i>
+          Upload Medical Report
+        </button>
+      </div>
+
+      <div class="loading" id="loadingDiv">
+        <div class="spinner"></div>
+        <h3>Analyzing Patient Data...</h3>
+        <p>AI is processing medical history and generating insights</p>
+      </div>
+
+      <div class="analysis-result" id="analysisResult">
+        <h3><i class="fas fa-chart-line"></i> Analysis Results</h3>
+        
+        <div class="patient-info" id="patientInfo">
+          <h4><i class="fas fa-user"></i> Patient Information</h4>
+          <div id="patientDetails"></div>
+        </div>
+
+        <div class="risk-level" id="riskLevel">
+          <h4>Risk Assessment</h4>
+          <p id="riskDescription"></p>
+        </div>
+
+        <div class="recommendations">
+          <h4><i class="fas fa-lightbulb"></i> AI Recommendations</h4>
+          <ul id="recommendationsList"></ul>
+        </div>
+
+        <div class="insights">
+          <h4><i class="fas fa-chart-line"></i> Medical Insights</h4>
+          <ul id="insightsList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="uploadInput" accept=".png,.jpg,.jpeg,.txt,.pdf" style="display: none;">
+
+  <script>
+    let selectedPatient = null;
+
+    // Search form submission
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById('searchName').value.trim();
+      const phone = document.getElementById('searchPhone').value.trim();
+      
+      if (!name || !phone) {
+        showAlert('Please enter both patient name and phone number.', 'error');
+        return;
+      }
+      
+      searchPatient(name, phone);
+    });
+
+    // File upload handling
+    document.getElementById('uploadInput').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        analyzeUploadedFile(file);
+      }
+    });
+
+    function searchPatient(name, phone) {
+      showLoading();
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+        const patient = patients.find(p => 
+          p.name.toLowerCase().includes(name.toLowerCase()) && 
+          (p.phone || '').includes(phone)
+        );
+        
+        if (patient) {
+          selectedPatient = patient;
+          analyzePatient(patient);
+        } else {
+          hideLoading();
+          showAlert('No matching patient found in the database.', 'error');
+        }
+      }, 2000);
+    }
+
+    function analyzePatient(patient) {
+      // Generate AI analysis
+      const analysis = generateAIAnalysis(patient);
+      
+      // Display results
+      displayAnalysisResults(patient, analysis);
+      hideLoading();
+      showAlert('Analysis completed successfully!', 'success');
+    }
+
+    function generateAIAnalysis(patient) {
+      const age = calculateAge(patient.dateOfBirth);
+      let riskScore = 0;
+      let riskLevel = 'low';
+      
+      // Risk calculation
+      if (age > 65) riskScore += 2;
+      if (age > 80) riskScore += 3;
+      if (patient.symptoms) riskScore += 3;
+      if (patient.allergies) riskScore += 1;
+      if (patient.medicalHistory && patient.medicalHistory.length > 0) riskScore += 2;
+      
+      if (riskScore >= 6) riskLevel = 'high';
+      else if (riskScore >= 3) riskLevel = 'medium';
+      
+      return {
+        riskLevel,
+        riskScore,
+        recommendations: generateRecommendations(patient, riskLevel),
+        insights: generateInsights(patient, age)
+      };
+    }
+
+    function generateRecommendations(patient, riskLevel) {
+      const recommendations = [];
+      
+      if (riskLevel === 'high') {
+        recommendations.push('Schedule immediate consultation with specialist');
+        recommendations.push('Monitor vital signs daily');
+        recommendations.push('Consider medication review with physician');
+        recommendations.push('Implement strict dietary restrictions if applicable');
+      } else if (riskLevel === 'medium') {
+        recommendations.push('Schedule follow-up appointment within 2 weeks');
+        recommendations.push('Implement lifestyle modifications');
+        recommendations.push('Monitor symptoms closely');
+      } else {
+        recommendations.push('Continue regular check-ups');
+        recommendations.push('Maintain healthy lifestyle');
+        recommendations.push('Annual health screening recommended');
+      }
+      
+      if (patient.allergies) {
+        recommendations.push('Ensure allergy information is updated in all medical records');
+      }
+      
+      return recommendations;
+    }
+
+    function generateInsights(patient, age) {
+      const insights = [];
+      
+      insights.push(`Patient is ${age} years old`);
+      insights.push(`Medical history: ${(patient.medicalHistory || []).join(', ') || 'None reported'}`);
+      insights.push(`Current medications: ${(patient.medications || []).join(', ') || 'None reported'}`);
+      
+      if (patient.symptoms) {
+        insights.push(`Current symptoms: ${patient.symptoms}`);
+      }
+      
+      if (patient.allergies) {
+        insights.push(`Known allergies: ${patient.allergies}`);
+      }
+      
+      if (patient.medicalImages && patient.medicalImages.length > 0) {
+        insights.push(`${patient.medicalImages.length} medical images available for review`);
+      }
+      
+      return insights;
+    }
+
+    function displayAnalysisResults(patient, analysis) {
+      const age = calculateAge(patient.dateOfBirth);
+      
+      // Patient info
+      document.getElementById('patientDetails').innerHTML = `
+        <div class="patient-detail"><strong>Name:</strong> <span>${patient.name}</span></div>
+        <div class="patient-detail"><strong>Age:</strong> <span>${age} years</span></div>
+        <div class="patient-detail"><strong>Phone:</strong> <span>${patient.phone || 'N/A'}</span></div>
+        <div class="patient-detail"><strong>Blood Type:</strong> <span>${patient.bloodType || 'Unknown'}</span></div>
+      `;
+      
+      // Risk level
+      const riskElement = document.getElementById('riskLevel');
+      riskElement.className = `risk-level risk-${analysis.riskLevel}`;
+      riskElement.querySelector('h4').textContent = `Risk Level: ${analysis.riskLevel.toUpperCase()}`;
+      document.getElementById('riskDescription').textContent = getRiskDescription(analysis.riskLevel);
+      
+      // Recommendations
+      const recList = document.getElementById('recommendationsList');
+      recList.innerHTML = analysis.recommendations.map(rec => `<li>${rec}</li>`).join('');
+      
+      // Insights
+      const insightsList = document.getElementById('insightsList');
+      insightsList.innerHTML = analysis.insights.map(insight => `<li>${insight}</li>`).join('');
+      
+      // Show results
+      document.getElementById('analysisResult').classList.add('active');
+    }
+
+    function getRiskDescription(riskLevel) {
+      switch(riskLevel) {
+        case 'high': return 'Immediate medical attention recommended';
+        case 'medium': return 'Regular monitoring and follow-up required';
+        case 'low': return 'Continue with routine healthcare maintenance';
+        default: return 'Assessment completed';
+      }
+    }
+
+    function calculateAge(dateOfBirth) {
+      if (!dateOfBirth) return 0;
+      const today = new Date();
+      const birthDate = new Date(dateOfBirth);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    function analyzeUploadedFile(file) {
+      showLoading();
+      
+      if (file.type.startsWith('image/')) {
+        // Use Tesseract.js for OCR
+        Tesseract.recognize(file, 'eng')
+          .then(({ data: { text } }) => {
+            const analysis = analyzeTextReport(text);
+            displayFileAnalysis(file.name, analysis);
+            hideLoading();
+            showAlert('File analysis completed!', 'success');
+          })
+          .catch(error => {
+            hideLoading();
+            showAlert('Error analyzing image: ' + error.message, 'error');
+          });
+      } else {
+        // Handle text/PDF files
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const text = e.target.result;
+          const analysis = analyzeTextReport(text);
+          displayFileAnalysis(file.name, analysis);
+          hideLoading();
+          showAlert('File analysis completed!', 'success');
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function analyzeTextReport(text) {
+      const analysis = {
+        riskLevel: 'low',
+        findings: [],
+        recommendations: []
+      };
+      
+      const lowerText = text.toLowerCase();
+      
+      // Simple keyword analysis
+      if (lowerText.includes('abnormal') || lowerText.includes('elevated') || lowerText.includes('high')) {
+        analysis.riskLevel = 'medium';
+        analysis.findings.push('Abnormal values detected in report');
+      }
+      
+      if (lowerText.includes('critical') || lowerText.includes('urgent') || lowerText.includes('immediate')) {
+        analysis.riskLevel = 'high';
+        analysis.findings.push('Critical findings require immediate attention');
+      }
+      
+      if (lowerText.includes('normal') || lowerText.includes('within range')) {
+        analysis.findings.push('Values within normal range');
+      }
+      
+      // Generate recommendations based on findings
+      if (analysis.riskLevel === 'high') {
+        analysis.recommendations.push('Consult with physician immediately');
+        analysis.recommendations.push('Follow up with specialist if recommended');
+      } else if (analysis.riskLevel === 'medium') {
+        analysis.recommendations.push('Schedule follow-up appointment');
+        analysis.recommendations.push('Monitor symptoms closely');
+      } else {
+        analysis.recommendations.push('Continue routine healthcare');
+        analysis.recommendations.push('Maintain healthy lifestyle');
+      }
+      
+      return analysis;
+    }
+
+    function displayFileAnalysis(filename, analysis) {
+      document.getElementById('patientDetails').innerHTML = `
+        <div class="patient-detail"><strong>File:</strong> <span>${filename}</span></div>
+        <div class="patient-detail"><strong>Analysis Date:</strong> <span>${new Date().toLocaleDateString()}</span></div>
+        <div class="patient-detail"><strong>Type:</strong> <span>Medical Report Analysis</span></div>
+      `;
+      
+      const riskElement = document.getElementById('riskLevel');
+      riskElement.className = `risk-level risk-${analysis.riskLevel}`;
+      riskElement.querySelector('h4').textContent = `Risk Level: ${analysis.riskLevel.toUpperCase()}`;
+      document.getElementById('riskDescription').textContent = getRiskDescription(analysis.riskLevel);
+      
+      const recList = document.getElementById('recommendationsList');
+      recList.innerHTML = analysis.recommendations.map(rec => `<li>${rec}</li>`).join('');
+      
+      const insightsList = document.getElementById('insightsList');
+      insightsList.innerHTML = analysis.findings.map(finding => `<li>${finding}</li>`).join('');
+      
+      document.getElementById('analysisResult').classList.add('active');
+    }
+
+    function showLoading() {
+      document.getElementById('loadingDiv').classList.add('active');
+      document.getElementById('analysisResult').classList.remove('active');
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingDiv').classList.remove('active');
+    }
+
+    function showAlert(message, type) {
+      const alertElement = document.getElementById(type === 'success' ? 'successAlert' : 'errorAlert');
+      const messageElement = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
+      
+      messageElement.textContent = message;
+      alertElement.style.display = 'flex';
+      
+      setTimeout(() => {
+        alertElement.style.display = 'none';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

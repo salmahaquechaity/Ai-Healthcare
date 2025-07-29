@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedCore - Admin Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+
+    /* Auth Screens */
+    .auth-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .auth-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 3rem;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-logo {
+      font-size: 3rem;
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+
+    .auth-title {
+      font-size: 1.8rem;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-subtitle {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 1rem 1rem 1rem 3rem;
+      border: 2px solid #e1e5e9;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #667eea;
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .auth-switch {
+      text-align: center;
+      color: #666;
+    }
+
+    .auth-switch a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Dashboard */
+    .dashboard {
+      display: none;
+    }
+
+    .dashboard.active {
+      display: block;
+    }
+
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .nav-user {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+    }
+
+    .main-content {
+      padding: 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1rem;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .recent-activity {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .auth-card {
+        padding: 2rem;
+      }
+      
+      .main-content {
+        padding: 1rem;
+      }
+      
+      .navbar {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <i class="fas fa-user-md"></i>
+        </div>
+        <h1 class="auth-title">MedCore Admin</h1>
+        <p class="auth-subtitle">Secure Administrative Access</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <i class="fas fa-user form-icon"></i>
+          <input type="text" id="loginUsername" class="form-input" placeholder="Admin Username" required>
+        </div>
+        <div class="form-group">
+          <i class="fas fa-lock form-icon"></i>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Admin Password" required>
+        </div>
+        <button type="submit" class="auth-btn">
+          <i class="fas fa-sign-in-alt"></i> Secure Login
+        </button>
+      </form>
+      <div class="auth-switch">
+        Need admin access? <a href="#" onclick="showSignup()">Register Admin</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signup Screen -->
+  <div id="signupScreen" class="auth-container hidden">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">
+          <i class="fas fa-user-shield"></i>
+        </div>
+        <h1 class="auth-title">Admin Registration</h1>
+        <p class="auth-subtitle">Create Administrative Account</p>
+      </div>
+      <form id="signupForm">
+        <div class="form-group">
+          <i class="fas fa-user form-icon"></i>
+          <input type="text" id="signupUsername" class="form-input" placeholder="Admin Username" required>
+        </div>
+        <div class="form-group">
+          <i class="fas fa-envelope form-icon"></i>
+          <input type="email" id="signupEmail" class="form-input" placeholder="Admin Email" required>
+        </div>
+        <div class="form-group">
+          <i class="fas fa-lock form-icon"></i>
+          <input type="password" id="signupPassword" class="form-input" placeholder="Admin Password" required>
+        </div>
+        <div class="form-group">
+          <i class="fas fa-key form-icon"></i>
+          <input type="text" id="adminKey" class="form-input" placeholder="Admin Access Key" required>
+          <small style="color: #666; font-size: 0.8rem; margin-top: 0.5rem; display: block;">Hint: MEDCORE2024</small>
+        </div>
+        <button type="submit" class="auth-btn">
+          <i class="fas fa-user-plus"></i> Create Admin Account
+        </button>
+      </form>
+      <div class="auth-switch">
+        Already have access? <a href="#" onclick="showLogin()">Login Here</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard">
+    <nav class="navbar">
+      <div class="nav-brand">
+        <i class="fas fa-heartbeat"></i>
+        MedCore Dashboard
+      </div>
+      <div class="nav-user">
+        <span>Welcome, <strong id="adminName">Admin</strong></span>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </nav>
+
+    <div class="main-content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="color: #28a745;">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-number" style="color: #28a745;">1,247</div>
+          <div class="stat-label">Total Patients</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color: #dc3545;">
+            <i class="fas fa-tint"></i>
+          </div>
+          <div class="stat-number" style="color: #dc3545;">89</div>
+          <div class="stat-label">Blood Units</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color: #007bff;">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="stat-number" style="color: #007bff;">156</div>
+          <div class="stat-label">Appointments</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="color: #ffc107;">
+            <i class="fas fa-user-md"></i>
+          </div>
+          <div class="stat-number" style="color: #ffc107;">23</div>
+          <div class="stat-label">Active Doctors</div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <a href="patient-management.html" class="action-btn">
+          <i class="fas fa-users" style="color: #28a745;"></i>
+          <span>Manage Patients</span>
+        </a>
+        <a href="blood.html" class="action-btn">
+          <i class="fas fa-tint" style="color: #dc3545;"></i>
+          <span>Blood Bank</span>
+        </a>
+        <a href="smart-appointments.html" class="action-btn">
+          <i class="fas fa-calendar-alt" style="color: #007bff;"></i>
+          <span>Appointments</span>
+        </a>
+      </div>
+
+      <div class="recent-activity">
+        <h3 style="margin-bottom: 1.5rem; color: #333;">
+          <i class="fas fa-clock"></i> Recent Activity
+        </h3>
+        <div class="activity-item">
+          <div class="activity-icon" style="background: #e8f5e8; color: #28a745;">
+            <i class="fas fa-user-plus"></i>
+          </div>
+          <div>
+            <strong>New Patient Registered</strong><br>
+            <small style="color: #666;">John Doe - 2 minutes ago</small>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background: #fff3cd; color: #ffc107;">
+            <i class="fas fa-calendar"></i>
+          </div>
+          <div>
+            <strong>Appointment Scheduled</strong><br>
+            <small style="color: #666;">Dr. Smith - 15 minutes ago</small>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background: #f8d7da; color: #dc3545;">
+            <i class="fas fa-tint"></i>
+          </div>
+          <div>
+            <strong>Blood Unit Added</strong><br>
+            <small style="color: #666;">O+ Type - 1 hour ago</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_KEY = 'MEDCORE2024';
+    
+    function showLogin() {
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('signupScreen').classList.add('hidden');
+    }
+    
+    function showSignup() {
+      document.getElementById('signupScreen').classList.remove('hidden');
+      document.getElementById('loginScreen').classList.add('hidden');
+    }
+    
+    function showDashboard(username) {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('signupScreen').classList.add('hidden');
+      document.getElementById('dashboard').classList.add('active');
+      document.getElementById('adminName').textContent = username;
+      localStorage.setItem('adminLoggedIn', 'true');
+      localStorage.setItem('adminUsername', username);
+    }
+    
+    function logout() {
+      localStorage.removeItem('adminLoggedIn');
+      localStorage.removeItem('adminUsername');
+      document.getElementById('dashboard').classList.remove('active');
+      showLogin();
+    }
+    
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      const savedUser = localStorage.getItem('admin_' + username);
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        if (userData.password === password) {
+          showDashboard(username);
+        } else {
+          alert('Invalid credentials');
+        }
+      } else {
+        alert('Admin account not found');
+      }
+    });
+    
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('signupUsername').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const adminKey = document.getElementById('adminKey').value.trim();
+      
+      console.log('Entered key:', adminKey);
+      console.log('Expected key:', ADMIN_KEY);
+      
+      if (adminKey !== ADMIN_KEY) {
+        alert('Invalid Admin Access Key. Please use: MEDCORE2024');
+        return;
+      }
+      
+      if (localStorage.getItem('admin_' + username)) {
+        alert('Admin username already exists');
+        return;
+      }
+      
+      const adminData = {
+        username,
+        email,
+        password,
+        createdAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem('admin_' + username, JSON.stringify(adminData));
+      alert('Admin account created successfully!');
+      showLogin();
+    });
+    
+    // Check if admin is already logged in
+    if (localStorage.getItem('adminLoggedIn') === 'true') {
+      const username = localStorage.getItem('adminUsername');
+      if (username) {
+        showDashboard(username);
+      }
+    }
+  </script>
+</body>
+</html> 

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodCore - Blood Bank Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .gradient-bg { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .blood-type { font-weight: bold; font-size: 1.2rem; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-red-50 to-pink-100 min-h-screen">
+  <!-- Header -->
+  <header class="gradient-bg text-white p-6 mb-8">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-tint text-3xl"></i>
+        <div>
+          <h1 class="text-3xl font-bold">BloodCore</h1>
+          <p class="text-red-100">Blood Bank Management System</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+        <div class="flex items-center">
+          <div class="bg-red-100 p-3 rounded-full">
+            <i class="fas fa-tint text-red-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Total Units</p>
+            <p class="text-2xl font-bold text-gray-800" id="totalUnits">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+        <div class="flex items-center">
+          <div class="bg-green-100 p-3 rounded-full">
+            <i class="fas fa-users text-green-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Active Donors</p>
+            <p class="text-2xl font-bold text-gray-800" id="totalDonors">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+        <div class="flex items-center">
+          <div class="bg-yellow-100 p-3 rounded-full">
+            <i class="fas fa-exclamation-triangle text-yellow-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Low Stock</p>
+            <p class="text-2xl font-bold text-gray-800" id="lowStock">0</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+        <div class="flex items-center">
+          <div class="bg-blue-100 p-3 rounded-full">
+            <i class="fas fa-calendar-day text-blue-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-gray-500 text-sm">Today's Donations</p>
+            <p class="text-2xl font-bold text-gray-800" id="todayDonations">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blood Inventory Grid -->
+    <section class="mb-8">
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <i class="fas fa-flask text-white text-xl"></i>
+              <h2 class="text-xl font-semibold text-white">Blood Inventory</h2>
+            </div>
+            <button onclick="openModal()" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2">
+              <i class="fas fa-plus"></i>
+              <span>Add Donation</span>
+            </button>
+          </div>
+        </div>
+        <div class="p-6">
+          <div id="bloodGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Donor Records -->
+    <section>
+      <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-user-friends text-white text-xl"></i>
+            <h2 class="text-xl font-semibold text-white">Donor Records</h2>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Donor</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Blood Type</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Units</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Address</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Medical History</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Allergy</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="donorTable" class="bg-white divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+      <h3 class="text-xl font-bold mb-4">Add Blood Donation</h3>
+      <form id="donationForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Donor Name</label>
+          <input type="text" id="donorName" class="w-full px-3 py-2 border rounded-lg" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+          <input type="text" id="donorPhone" class="w-full px-3 py-2 border rounded-lg" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+          <input type="text" id="donorAddress" class="w-full px-3 py-2 border rounded-lg" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Blood Group</label>
+          <select id="bloodGroup" class="w-full px-3 py-2 border rounded-lg" required>
+            <option value="">Select Blood Group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Quantity (Units)</label>
+          <input type="number" id="quantity" min="1" max="10" class="w-full px-3 py-2 border rounded-lg" required>
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Medical History</label>
+          <input type="text" id="medicalHistory" class="w-full px-3 py-2 border rounded-lg">
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Allergy Info</label>
+          <input type="text" id="allergy" class="w-full px-3 py-2 border rounded-lg">
+        </div>
+        <div class="flex space-x-3">
+          <button type="button" onclick="closeModal()" class="flex-1 px-4 py-2 border text-gray-700 rounded-lg">Cancel</button>
+          <button type="submit" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg">Add Donation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let bloodInventory = JSON.parse(localStorage.getItem('bloodInventory') || '[]');
+    const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
+    function updateStats() {
+      const totalUnits = bloodInventory.reduce((sum, item) => sum + item.quantity, 0);
+      const totalDonors = new Set(bloodInventory.map(i => i.donorName)).size;
+      const today = new Date().toDateString();
+      const todayDonations = bloodInventory.filter(i => new Date(i.date).toDateString() === today).length;
+
+      const summary = {};
+      bloodTypes.forEach(type => {
+        summary[type] = bloodInventory.filter(i => i.bloodGroup === type).reduce((s, i) => s + i.quantity, 0);
+      });
+      const lowStock = Object.values(summary).filter(v => v < 5).length;
+
+      document.getElementById('totalUnits').textContent = totalUnits;
+      document.getElementById('totalDonors').textContent = totalDonors;
+      document.getElementById('lowStock').textContent = lowStock;
+      document.getElementById('todayDonations').textContent = todayDonations;
+    }
+
+    function updateBloodGrid() {
+      const grid = document.getElementById('bloodGrid');
+      const summary = {};
+      bloodTypes.forEach(type => {
+        summary[type] = bloodInventory.filter(i => i.bloodGroup === type).reduce((s, i) => s + i.quantity, 0);
+      });
+      grid.innerHTML = bloodTypes.map(type => {
+        const count = summary[type];
+        const isLow = count < 5;
+        return `<div class="p-4 rounded-lg text-center card-hover ${isLow ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+          <div class="blood-type">${type}</div>
+          <div class="text-2xl font-bold mt-2">${count}</div>
+          <div class="text-xs mt-1">${isLow ? 'Low Stock' : 'Available'}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function updateDonorTable() {
+      const tbody = document.getElementById('donorTable');
+      tbody.innerHTML = bloodInventory.map((item, index) => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 font-medium text-gray-900">${item.donorName}</td>
+          <td class="px-6 py-4">${item.bloodGroup}</td>
+          <td class="px-6 py-4">${item.quantity} units</td>
+          <td class="px-6 py-4">${new Date(item.date).toLocaleDateString()}</td>
+          <td class="px-6 py-4">${item.phone}</td>
+          <td class="px-6 py-4">${item.address}</td>
+          <td class="px-6 py-4">${item.history || 'None'}</td>
+          <td class="px-6 py-4">${item.allergy || 'None'}</td>
+          <td class="px-6 py-4">
+            <button onclick="removeDonation(${index})" class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`).join('');
+    }
+
+    function openModal() {
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+      document.getElementById('donationForm').reset();
+    }
+
+    function removeDonation(index) {
+      if (confirm('Are you sure you want to remove this donation?')) {
+        bloodInventory.splice(index, 1);
+        localStorage.setItem('bloodInventory', JSON.stringify(bloodInventory));
+        updateAll();
+      }
+    }
+
+    document.getElementById('donationForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const donation = {
+        donorName: document.getElementById('donorName').value,
+        phone: document.getElementById('donorPhone').value,
+        address: document.getElementById('donorAddress').value,
+        bloodGroup: document.getElementById('bloodGroup').value,
+        quantity: parseInt(document.getElementById('quantity').value),
+        history: document.getElementById('medicalHistory').value,
+        allergy: document.getElementById('allergy').value,
+        date: new Date().toISOString()
+      };
+      bloodInventory.push(donation);
+      localStorage.setItem('bloodInventory', JSON.stringify(bloodInventory));
+      closeModal();
+      updateAll();
+    });
+
+    function updateAll() {
+      updateStats();
+      updateBloodGrid();
+      updateDonorTable();
+    }
+
+    // Initialize on page load
+    updateAll();
+  

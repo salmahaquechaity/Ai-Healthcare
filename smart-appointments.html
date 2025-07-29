@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Appointments - MediCore</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      color: #667eea;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .appointment-form {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .appointments-list {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .appointment-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      border-left: 4px solid #667eea;
+    }
+
+    .appointment-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .appointment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .appointment-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .appointment-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-scheduled {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-confirmed {
+      background: #cce5ff;
+      color: #004085;
+    }
+
+    .status-completed {
+      background: #f8f9fa;
+      color: #6c757d;
+    }
+
+    .appointment-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #666;
+    }
+
+    .detail-item i {
+      color: #667eea;
+      width: 16px;
+    }
+
+    .appointment-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .doctor-suggestions {
+      background: #e3f2fd;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .doctor-card {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .doctor-info h4 {
+      color: #2c3e50;
+      margin-bottom: 0.25rem;
+    }
+
+    .doctor-info p {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .availability {
+      text-align: right;
+      font-size: 0.8rem;
+    }
+
+    .available {
+      color: #28a745;
+    }
+
+    .busy {
+      color: #dc3545;
+    }
+
+    .priority-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .priority-high {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .priority-medium {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .priority-low {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .appointment-details {
+        grid-template-columns: 1fr;
+      }
+      
+      .appointment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-calendar-alt"></i> Smart Appointments</h1>
+      <p>AI-powered appointment scheduling with specialist matching</p>
+    </div>
+
+    <div class="main-content">
+      <div class="appointment-form">
+        <h2><i class="fas fa-plus-circle"></i> Schedule New Appointment</h2>
+        
+        <form id="appointmentForm">
+          <div class="form-group">
+            <label for="patientSelect">Patient</label>
+            <select id="patientSelect" name="patient" required>
+              <option value="">Select Patient</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="appointmentType">Appointment Type</label>
+            <select id="appointmentType" name="type" required onchange="updateSpecialists()">
+              <option value="">Select Type</option>
+              <option value="routine">Routine Check-up</option>
+              <option value="follow-up">Follow-up</option>
+              <option value="emergency">Emergency</option>
+              <option value="consultation">Specialist Consultation</option>
+              <option value="screening">Health Screening</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="specialistSelect">Preferred Specialist</label>
+            <select id="specialistSelect" name="specialist" required>
+              <option value="">Select Specialist</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="appointmentDate">Preferred Date & Time</label>
+            <input type="datetime-local" id="appointmentDate" name="datetime" required>
+          </div>
+
+          <div class="form-group">
+            <label for="priority">Priority Level</label>
+            <select id="priority" name="priority" required>
+              <option value="low">Low - Routine</option>
+              <option value="medium">Medium - Important</option>
+              <option value="high">High - Urgent</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="symptoms">Symptoms/Reason</label>
+            <textarea id="symptoms" name="symptoms" rows="3" placeholder="Describe symptoms or reason for visit..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-calendar-plus"></i> Schedule Appointment
+          </button>
+        </form>
+
+        <div id="doctorSuggestions" class="doctor-suggestions" style="display: none;">
+          <h3><i class="fas fa-user-md"></i> AI Recommended Doctors</h3>
+          <div id="suggestedDoctors"></div>
+        </div>
+      </div>
+
+      <div class="appointments-list">
+        <h2><i class="fas fa-list"></i> Scheduled Appointments</h2>
+        <div id="appointmentsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Doctor database with specializations and availability
+    const doctorDatabase = {
+      'General Practice': [
+        { name: 'Dr. Sarah Johnson', experience: '15 years', rating: 4.8, available: true, nextSlot: '2025-01-20 09:00' },
+        { name: 'Dr. Michael Chen', experience: '12 years', rating: 4.7, available: true, nextSlot: '2025-01-20 14:00' }
+      ],
+      'Cardiologist': [
+        { name: 'Dr. Emily Rodriguez', experience: '20 years', rating: 4.9, available: true, nextSlot: '2025-01-22 10:00' },
+        { name: 'Dr. James Wilson', experience: '18 years', rating: 4.8, available: false, nextSlot: '2025-01-25 11:00' }
+      ],
+      'Endocrinologist': [
+        { name: 'Dr. Lisa Thompson', experience: '16 years', rating: 4.9, available: true, nextSlot: '2025-01-21 15:00' },
+        { name: 'Dr. Robert Kim', experience: '14 years', rating: 4.7, available: true, nextSlot: '2025-01-23 09:30' }
+      ],
+      'Pulmonologist': [
+        { name: 'Dr. Amanda Davis', experience: '13 years', rating: 4.8, available: true, nextSlot: '2025-01-24 13:00' }
+      ],
+      'Rheumatologist': [
+        { name: 'Dr. David Martinez', experience: '19 years', rating: 4.9, available: true, nextSlot: '2025-01-26 10:30' }
+      ],
+      'Internal Medicine': [
+        { name: 'Dr. Jennifer Lee', experience: '17 years', rating: 4.8, available: true, nextSlot: '2025-01-21 11:00' },
+        { name: 'Dr. Christopher Brown', experience: '21 years', rating: 4.9, available: true, nextSlot: '2025-01-22 16:00' }
+      ],
+      'Orthopedist': [
+        { name: 'Dr. Kevin Taylor', experience: '15 years', rating: 4.7, available: true, nextSlot: '2025-01-23 14:00' }
+      ],
+      'Allergist': [
+        { name: 'Dr. Maria Garcia', experience: '11 years', rating: 4.8, available: true, nextSlot: '2025-01-24 10:00' }
+      ]
+    };
+
+    // Appointment type to specialist mapping
+    const appointmentSpecialists = {
+      'routine': ['General Practice', 'Internal Medicine'],
+      'follow-up': ['General Practice', 'Internal Medicine'],
+      'emergency': ['General Practice', 'Internal Medicine', 'Cardiologist'],
+      'consultation': Object.keys(doctorDatabase),
+      'screening': ['General Practice', 'Internal Medicine']
+    };
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPatients();
+      loadAppointments();
+      setMinDateTime();
+      checkPendingAppointment();
+    });
+
+    function loadPatients() {
+      const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+      const select = document.getElementById('patientSelect');
+      
+      select.innerHTML = '<option value="">Select Patient</option>';
+      patients.forEach(patient => {
+        const option = document.createElement('option');
+        option.value = patient.id || patient.name;
+        option.textContent = `${patient.name} (Age: ${patient.age})`;
+        option.dataset.patient = JSON.stringify(patient);
+        select.appendChild(option);
+      });
+    }
+
+    function updateSpecialists() {
+      const appointmentType = document.getElementById('appointmentType').value;
+      const specialistSelect = document.getElementById('specialistSelect');
+      
+      specialistSelect.innerHTML = '<option value="">Select Specialist</option>';
+      
+      if (appointmentType && appointmentSpecialists[appointmentType]) {
+        appointmentSpecialists[appointmentType].forEach(specialty => {
+          const option = document.createElement('option');
+          option.value = specialty;
+          option.textContent = specialty;
+          specialistSelect.appendChild(option);
+        });
+      }
+      
+      // Show AI recommendations based on patient data
+      showDoctorSuggestions();
+    }
+
+    function showDoctorSuggestions() {
+      const patientSelect = document.getElementById('patientSelect');
+      const appointmentType = document.getElementById('appointmentType').value;
+      
+      if (!patientSelect.value || !appointmentType) {
+        document.getElementById('doctorSuggestions').style.display = 'none';
+        return;
+      }
+      
+      const patientData = JSON.parse(patientSelect.options[patientSelect.selectedIndex].dataset.patient);
+      const suggestions = getAIRecommendations(patientData, appointmentType);
+      
+      if (suggestions.length > 0) {
+        displayDoctorSuggestions(suggestions);
+        document.getElementById('doctorSuggestions').style.display = 'block';
+      }
+    }
+
+    function getAIRecommendations(patient, appointmentType) {
+      const age = parseInt(patient.age) || 0;
+      const history = (patient.history || '').toLowerCase();
+      const symptoms = (patient.symptoms || '').toLowerCase();
+      
+      let recommendedSpecialties = [];
+      
+      // AI logic for specialist recommendations
+      if (history.includes('diabetes') || symptoms.includes('diabetes')) {
+        recommendedSpecialties.push('Endocrinologist');
+      }
+      if (history.includes('heart') || symptoms.includes('chest pain')) {
+        recommendedSpecialties.push('Cardiologist');
+      }
+      if (history.includes('asthma') || symptoms.includes('breathing')) {
+        recommendedSpecialties.push('Pulmonologist');
+      }
+      if (history.includes('arthritis') || symptoms.includes('joint pain')) {
+        recommendedSpecialties.push('Rheumatologist');
+      }
+      if (age > 50 && appointmentType === 'routine') {
+        recommendedSpecialties.push('Internal Medicine');
+      }
+      
+      // Get doctors from recommended specialties
+      const suggestions = [];
+      recommendedSpecialties.forEach(specialty => {
+        if (doctorDatabase[specialty]) {
+          doctorDatabase[specialty].forEach(doctor => {
+            suggestions.push({
+              ...doctor,
+              specialty,
+              matchReason: getMatchReason(specialty, patient)
+            });
+          });
+        }
+      });
+      
+      return suggestions.sort((a, b) => b.rating - a.rating).slice(0, 3);
+    }
+
+    function getMatchReason(specialty, patient) {
+      const reasons = {
+        'Endocrinologist': 'Diabetes management expertise',
+        'Cardiologist': 'Heart condition specialist',
+        'Pulmonologist': 'Respiratory system expert',
+        'Rheumatologist': 'Joint and arthritis specialist',
+        'Internal Medicine': 'Comprehensive adult care'
+      };
+      return reasons[specialty] || 'General healthcare';
+    }
+
+    function displayDoctorSuggestions(suggestions) {
+      const container = document.getElementById('suggestedDoctors');
+      
+      container.innerHTML = suggestions.map(doctor => `
+        <div class="doctor-card">
+          <div class="doctor-info">
+            <h4>${doctor.name}</h4>
+            <p>${doctor.specialty} • ${doctor.experience} • ⭐ ${doctor.rating}</p>
+            <p style="font-size: 0.8rem; color: #667eea;">${doctor.matchReason}</p>
+          </div>
+          <div class="availability">
+            <div class="${doctor.available ? 'available' : 'busy'}">
+              ${doctor.available ? '✓ Available' : '⏰ Busy'}
+            </div>
+            <div style="margin-top: 0.25rem;">Next: ${new Date(doctor.nextSlot).toLocaleDateString()}</div>
+            <button class="btn btn-secondary btn-small" onclick="selectDoctor('${doctor.specialty}', '${doctor.name}')">
+              Select
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectDoctor(specialty, doctorName) {
+      document.getElementById('specialistSelect').value = specialty;
+      // You could also store the specific doctor name for the appointment
+    }
+
+    function setMinDateTime() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 60); // Minimum 1 hour from now
+      document.getElementById('appointmentDate').min = now.toISOString().slice(0, 16);
+    }
+
+    function checkPendingAppointment() {
+      const pending = localStorage.getItem('pendingAppointment');
+      if (pending) {
+        const data = JSON.parse(pending);
+        
+        // Pre-fill form with pending appointment data
+        const patientSelect = document.getElementById('patientSelect');
+        for (let option of patientSelect.options) {
+          if (option.textContent.includes(data.patientName)) {
+            option.selected = true;
+            break;
+          }
+        }
+        
+        document.getElementById('appointmentType').value = 'consultation';
+        document.getElementById('priority').value = data.priority || 'medium';
+        
+        updateSpecialists();
+        setTimeout(() => {
+          document.getElementById('specialistSelect').value = data.specialist;
+        }, 100);
+        
+        localStorage.removeItem('pendingAppointment');
+      }
+    }
+
+    // Form submission
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const patientSelect = document.getElementById('patientSelect');
+      const selectedPatient = JSON.parse(patientSelect.options[patientSelect.selectedIndex].dataset.patient);
+      
+      const appointment = {
+        id: Date.now(),
+        patient: selectedPatient,
+        type: formData.get('type'),
+        specialist: formData.get('specialist'),
+        datetime: formData.get('datetime'),
+        priority: formData.get('priority'),
+        symptoms: formData.get('symptoms'),
+        status: 'scheduled',
+        createdAt: new Date().toISOString()
+      };
+      
+      // Save appointment
+      const appointments = JSON.parse(localStorage.getItem('smartAppointments') || '[]');
+      appointments.push(appointment);
+      localStorage.setItem('smartAppointments', JSON.stringify(appointments));
+      
+      // Reset form and reload appointments
+      this.reset();
+      setMinDateTime();
+      loadAppointments();
+      document.getElementById('doctorSuggestions').style.display = 'none';
+      
+      alert('Appointment scheduled successfully!');
+    });
+
+    function loadAppointments() {
+      const appointments = JSON.parse(localStorage.getItem('smartAppointments') || '[]');
+      const container = document.getElementById('appointmentsList');
+      
+      if (appointments.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No appointments scheduled</p>';
+        return;
+      }
+      
+      // Sort by date
+      appointments.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+      
+      container.innerHTML = appointments.map(appointment => createAppointmentCard(appointment)).join('');
+    }
+
+    function createAppointmentCard(appointment) {
+      const appointmentDate = new Date(appointment.datetime);
+      const isUpcoming = appointmentDate > new Date();
+      
+      return `
+        <div class="appointment-card">
+          <div class="appointment-header">
+            <div class="appointment-title">
+              ${appointment.patient.name}
+              <span class="priority-badge priority-${appointment.priority}">
+                ${appointment.priority.toUpperCase()}
+              </span>
+            </div>
+            <div class="appointment-status status-${appointment.status}">
+              ${appointment.status.toUpperCase()}
+            </div>
+          </div>
+          
+          <div class="appointment-details">
+            <div class="detail-item">
+              <i class="fas fa-calendar"></i>
+              <span>${appointmentDate.toLocaleDateString()}</span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-clock"></i>
+              <span>${appointmentDate.toLocaleTimeString()}</span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-user-md"></i>
+              <span>${appointment.specialist}</span>
+            </div>
+            <div class="detail-item">
+              <i class="fas fa-stethoscope"></i>
+              <span>${appointment.type}</span>
+            </div>
+          </div>
+          
+          ${appointment.symptoms ? `
+            <div class="detail-item" style="margin-top: 0.5rem;">
+              <i class="fas fa-notes-medical"></i>
+              <span>${appointment.symptoms}</span>
+            </div>
+          ` : ''}
+          
+          <div class="appointment-actions">
+            ${isUpcoming ? `
+              <button class="btn btn-secondary btn-small" onclick="editAppointment(${appointment.id})">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn btn-secondary btn-small" onclick="confirmAppointment(${appointment.id})">
+                <i class="fas fa-check"></i> Confirm
+              </button>
+            ` : ''}
+            <button class="btn btn-secondary btn-small" onclick="cancelAppointment(${appointment.id})">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function confirmAppointment(id) {
+      const appointments = JSON.parse(localStorage.getItem('smartAppointments') || '[]');
+      const appointment = appointments.find(a => a.id === id);
+      
+      if (appointment) {
+        appointment.status = 'confirmed';
+        localStorage.setItem('smartAppointments', JSON.stringify(appointments));
+        loadAppointments();
+      }
+    }
+
+    function cancelAppointment(id) {
+      if (confirm('Are you sure you want to cancel this appointment?')) {
+        let appointments = JSON.parse(localStorage.getItem('smartAppointments') || '[]');
+        appointments = appointments.filter(a => a.id !== id);
+        localStorage.setItem('smartAppointments', JSON.stringify(appointments));
+        loadAppointments();
+      }
+    }
+
+    function editAppointment(id) {
+      // For simplicity, we'll just allow rescheduling
+      const appointments = JSON.parse(localStorage.getItem('smartAppointments') || '[]');
+      const appointment = appointments.find(a => a.id === id);
+      
+      if (appointment) {
+        const newDateTime = prompt('Enter new date and time (YYYY-MM-DD HH:MM):', 
+          appointment.datetime.replace('T', ' ').slice(0, 16));
+        
+        if (newDateTime) {
+          appointment.datetime = newDateTime.replace(' ', 'T');
+          localStorage.setItem('smartAppointments', JSON.stringify(appointments));
+          loadAppointments();
+        }
+      }
+    }
+  </script>
+</body>
+</html>

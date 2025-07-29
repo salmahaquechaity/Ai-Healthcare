@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Patient Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-lg shadow">
+    <h1 class="text-2xl font-bold mb-4 text-blue-700">Patient Report Generator</h1>
+
+    <!-- Patient ID Input (or dropdown if needed) -->
+    <div class="mb-4">
+      <input id="patientId" type="text" placeholder="Enter Patient ID" class="w-full p-2 border rounded" />
+      <button onclick="loadPatient()" class="mt-2 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Load Patient</button>
+    </div>
+
+    <!-- Report Content -->
+    <div id="reportContent" class="hidden mt-6">
+      <div class="space-y-2">
+        <p><strong>Name:</strong> <span id="r_name"></span></p>
+        <p><strong>Gender:</strong> <span id="r_gender"></span></p>
+        <p><strong>Birthdate:</strong> <span id="r_birthdate"></span> (<span id="r_age"></span> years)</p>
+        <p><strong>Blood Group:</strong> <span id="r_blood"></span></p>
+        <p><strong>Allergies:</strong> <span id="r_allergy"></span></p>
+        <p><strong>Emergency Contact:</strong> <span id="r_contact"></span></p>
+      </div>
+
+      <div class="mt-4">
+        <label for="additionalNotes" class="block font-medium mb-1">Additional Notes / Medical Report</label>
+        <textarea id="additionalNotes" rows="5" class="w-full p-2 border rounded"></textarea>
+      </div>
+
+      <button onclick="downloadReport()" class="mt-4 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Download PDF Report</button>
+    </div>
+  </div>
+
+  <script>
+    const dummyPatients = [
+      {
+        id: "P001",
+        name: "Salma Haque Chaity",
+        gender: "Female",
+        birthdate: "1998-03-12",
+        blood_type: "A+",
+        allergies: "Penicillin",
+        emergency_contact: "01712345678"
+      },
+      {
+        id: "P002",
+        name: "Nadia Akter",
+        gender: "Female",
+        birthdate: "2000-08-15",
+        blood_type: "O-",
+        allergies: "None",
+        emergency_contact: "01611112222"
+      }
+    ];
+
+    function loadPatient() {
+      const id = document.getElementById("patientId").value.trim();
+      const patient = dummyPatients.find(p => p.id === id);
+
+      if (!patient) {
+        alert("Patient not found.");
+        return;
+      }
+
+      // Fill report fields
+      document.getElementById("r_name").textContent = patient.name;
+      document.getElementById("r_gender").textContent = patient.gender;
+      document.getElementById("r_birthdate").textContent = patient.birthdate;
+      document.getElementById("r_age").textContent = calculateAge(patient.birthdate);
+      document.getElementById("r_blood").textContent = patient.blood_type;
+      document.getElementById("r_allergy").textContent = patient.allergies;
+      document.getElementById("r_contact").textContent = patient.emergency_contact;
+
+      document.getElementById("reportContent").classList.remove("hidden");
+    }
+
+    function calculateAge(birthdate) {
+      const dob = new Date(birthdate);
+      const diff = Date.now() - dob.getTime();
+      return new Date(diff).getUTCFullYear() - 1970;
+    }
+
+    async function downloadReport() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const name = document.getElementById("r_name").textContent;
+      const gender = document.getElementById("r_gender").textContent;
+      const birthdate = document.getElementById("r_birthdate").textContent;
+      const age = document.getElementById("r_age").textContent;
+      const blood = document.getElementById("r_blood").textContent;
+      const allergies = document.getElementById("r_allergy").textContent;
+      const contact = document.getElementById("r_contact").textContent;
+      const notes = document.getElementById("additionalNotes").value;
+
+      doc.setFontSize(18);
+      doc.text("Patient Health Report", 20, 20);
+
+      doc.setFontSize(12);
+      let y = 35;
+      doc.text(`Name: ${name}`, 20, y); y += 10;
+      doc.text(`Gender: ${gender}`, 20, y); y += 10;
+      doc.text(`Birthdate: ${birthdate} (Age: ${age})`, 20, y); y += 10;
+      doc.text(`Blood Group: ${blood}`, 20, y); y += 10;
+      doc.text(`Allergies: ${allergies}`, 20, y); y += 10;
+      doc.text(`Emergency Contact: ${contact}`, 20, y); y += 10;
+
+      doc.setFontSize(14);
+      doc.text("Medical Notes:", 20, y + 10);
+      doc.setFontSize(12);
+      doc.text(notes || "No additional notes.", 20, y + 20);
+
+      doc.save(`${name}_report.pdf`);
+    }
+  </script>
+</body>
+</html>

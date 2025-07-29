@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediCore - Advanced Health Management System</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #2c3e50;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background: #1e1e2f;
+      color: #f1f1f1;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: background 0.3s;
+    }
+
+    .header.dark-mode {
+      background: rgba(30, 30, 47, 0.95);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 2rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #2c3e50;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    body.dark-mode .nav-links a {
+      color: #f1f1f1;
+    }
+
+    body.dark-mode .feature-card {
+      background: rgba(30, 30, 47, 0.95);
+    }
+
+    body.dark-mode .feature-card h3 {
+      color: #f1f1f1;
+    }
+
+    body.dark-mode .feature-card p {
+      color: #b0b0b0;
+    }
+
+    body.dark-mode .feature-item {
+      background: rgba(30, 30, 47, 0.95);
+    }
+
+    body.dark-mode .feature-item h4 {
+      color: #f1f1f1;
+    }
+
+    body.dark-mode .feature-item p {
+      color: #b0b0b0;
+    }
+
+    .nav-links a:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .menu-toggle {
+      display: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #2c3e50;
+    }
+
+    .theme-toggle {
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-left: 1rem;
+    }
+
+    .hero {
+      padding: 4rem 2rem;
+      text-align: center;
+      color: white;
+      animation: fadeIn 1.2s ease-in-out both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+      color: white;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+
+    .features {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    .feature-card p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .cta-button {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .additional-features {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 4rem 2rem;
+      margin-top: 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 3rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-item {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-item i {
+      font-size: 2.5rem;
+      color: #667eea;
+      margin-bottom: 1rem;
+    }
+
+    .feature-item h4 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 1rem;
+    }
+
+    .feature-item p {
+      color: #666;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    footer {
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 4rem;
+    }
+
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background: white;
+        padding: 1rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border-radius: 8px;
+      }
+      .nav-links.active {
+        display: flex;
+      }
+      .menu-toggle {
+        display: block;
+      }
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .hero-stats {
+        gap: 2rem;
+      }
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header" id="header">
+    <div class="nav-container">
+      <div class="logo">
+        <i class="fas fa-heartbeat"></i> MediCore
+      </div>
+      <div class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </div>
+      <nav class="nav-links" id="navLinks">
+        <a href="dashbord.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="patient-management.html"><i class="fas fa-user-plus"></i> Patients</a>
+        <a href="ai-analysis.html"><i class="fas fa-brain"></i> AI Analysis</a>
+        <a href="blood.html"><i class="fas fa-tint"></i> Blood System</a>
+        <a href="smart-appointments.html"><i class="fas fa-calendar-alt"></i> Appointments</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <span class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode"><i class="fas fa-moon"></i></span>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1 id="greeting">Welcome to Advanced Healthcare</h1>
+    <p>Complete medical management solution with AI-powered analysis, smart appointments, comprehensive patient records, blood bank management, and advanced reporting capabilities</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-number">6</span>
+        <span class="stat-label">Core Modules</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">AI</span>
+        <span class="stat-label">Powered Analysis</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">100%</span>
+        <span class="stat-label">Responsive</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">24/7</span>
+        <span class="stat-label">Available</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="feature-card" onclick="window.location.href='patient-management.html'">
+      <div class="feature-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <h3>Patient Management</h3>
+      <p>Comprehensive patient registration with medical history, allergies, symptoms, emergency contacts, and medical image uploads. Complete patient records management system.</p>
+      <a href="patient-management.html" class="cta-button">Manage Patients</a>
+    </div>
+
+    <div class="feature-card" onclick="window.location.href='blood.html'">
+      <div class="feature-icon">
+        <i class="fas fa-tint"></i>
+      </div>
+      <h3>Blood Bank System</h3>
+      <p>Advanced blood inventory management with real-time tracking, donor records, blood type monitoring, and automated low stock alerts for efficient blood bank operations.</p>
+      <a href="blood.html" class="cta-button">Blood Management</a>
+    </div>
+
+    <div class="feature-card" onclick="window.location.href='smart-appointments.html'">
+      <div class="feature-icon">
+        <i class="fas fa-calendar-alt"></i>
+      </div>
+      <h3>Smart Appointments</h3>
+      <p>Intelligent appointment scheduling system with automated reminders, conflict resolution, and seamless calendar integration for optimal patient care coordination.</p>
+      <a href="smart-appointments.html" class="cta-button">Schedule Appointments</a>
+    </div>
+
+    <div class="feature-card" onclick="window.location.href='ai-analysis.html'">
+      <div class="feature-icon">
+        <i class="fas fa-brain"></i>
+      </div>
+      <h3>AI Medical Analysis</h3>
+      <p>Advanced AI-powered patient health assessment with risk analysis, medical insights, and intelligent recommendations based on patient data and medical history.</p>
+      <a href="ai-analysis.html" class="cta-button">AI Analysis</a>
+    </div>
+  </section>
+
+  <section class="additional-features">
+    <div class="container">
+      <h2 class="section-title">Advanced Features</h2>
+      <div class="features-grid">
+        <div class="feature-item">
+          <i class="fas fa-shield-alt"></i>
+          <h4>Secure Authentication</h4>
+          <p>Admin-only access with secure login system and session management</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <h4>Medical Image Upload</h4>
+          <p>Support for medical images, X-rays, and reports with preview functionality</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-mobile-alt"></i>
+          <h4>Responsive Design</h4>
+          <p>Fully responsive interface that works seamlessly on all devices</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-database"></i>
+          <h4>Data Management</h4>
+          <p>Efficient local storage with data persistence and backup capabilities</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-search"></i>
+          <h4>Smart Search</h4>
+          <p>Advanced search functionality across patient records and medical data</p>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-bell"></i>
+          <h4>Real-time Alerts</h4>
+          <p>Automated notifications for appointments, low stock, and critical updates</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 MediCore - Advanced Healthcare Management System | Powered by AI Technology</p>
+  </footer>
+
+  <script>
+    // Toggle mobile nav menu
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('active');
+    });
+
+    // Auth check
+    function checkAuth() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      if (!isLoggedIn || isLoggedIn !== 'true') {
+        window.location.href = 'login.html';
+        return false;
+      }
+      return true;
+    }
+
+    // Logout
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+
+    // Dark mode toggle
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      document.getElementById('header').classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+    }
+
+    // Apply dark mode on load
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      document.body.classList.add('dark-mode');
+      document.getElementById('header').classList.add('dark-mode');
+    }
+
+    // Set greeting
+    document.getElementById('greeting').textContent = 'Welcome to Advanced Healthcare';
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!checkAuth()) return;
+    });
+  </script>
+</body>
+</html>
